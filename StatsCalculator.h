@@ -51,8 +51,7 @@ public:
      * @brief Calculates spCC that calculates the sample PCC between two numeric vectors
      * @return bool True if calculation is successful
      */
-    bool getsPCC(const Vector<float> & otherRecords, double& outSpcc) const;
-
+    bool getsPCC(const Vector<float>& thisRecords, const Vector<float>& otherRecords, double& outSpcc) const;
 
     /**
      * @brief Calculates the mean absolute deviation of the numerical vector

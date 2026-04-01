@@ -1,24 +1,5 @@
-#include "StatsCalculator.h"
-#include <cmath>
 
-bool StatsCalculator::getMean(const Vector<float> & records, double& outMean) const
-{
-    if(records.Size() == 0)
-    {
-        return false;
-    }
-    double sum = 0;
-
-    for(int i = 0; i < records.Size(); ++i)
-    {
-        sum += records[i];
-    }
-
-    outMean = sum / static_cast<double>(records.Size());
-    return true;
-}
-
-bool StatsCalculator::getSampleStandardDeviation(const Vector<float> & records, double& outStdDev) const
+bool StatsCalculator::getSampleStandardDeviation(const Vector<float>& records, double& outStdDev) const
 {
     int n = records.Size();
     if (n < 2)
@@ -37,7 +18,7 @@ bool StatsCalculator::getSampleStandardDeviation(const Vector<float> & records, 
     return true;
 }
 
-bool StatsCalculator::getSum(const Vector<float> & records, double& outSum) const
+bool StatsCalculator::getSum(const Vector<float>& records, double& outSum) const
 {
     if(records.Size() == 0)
     {
@@ -55,12 +36,79 @@ bool StatsCalculator::getSum(const Vector<float> & records, double& outSum) cons
     return true;
 }
 
-bool getsPCC(const Vector<float> & otherRecords, double& outSpcc) const
+bool getsPCC(const Vector<float>& thisRecords, const Vector<float>& otherRecords, double& outSpcc) const
 {
+    if(thisRecords.Size() || otherRecords.Size() == 0)
+    {
+        return false;
+    }
 
+    if(thisRecords.Size() != otherRecords.Size())
+    {
+        return false;
+    }
+
+    int n = thisRecords.Size();
+
+    double sumX = 0;
+    double sumY = 0;
+
+    for(int i = 0; i < n; ++i)
+    {
+        sumX += thisRecords[i];
+        sumY += otherRecords[i];
+    }
+
+    double meanX = sumX / n;
+    double meanY = sumY / n;
+
+    double numerator = 0;
+
+    double sumSqX = 0;
+    double sumSqY = 0;
+
+    for(int i = 0; i < n; ++i)
+    {
+        double diffX = thisRecords[i] - meanX;
+        double diffY = otherRecords[i] - meanY;
+
+        numerator += diffX * diffY;
+        sumSqX += diffX * diffX;
+        sumSqY += diffY * diffY;
+    }
+
+    double denominator = sqrt(sumSqX) * sqrt(sumSqY);
+
+    if(denomimator == 0)
+    {
+        return false;
+    }
+
+    outPcc = numerator / denominator;
+    return true;
 }
 
-bool getMad(const Vector<float> & records, double& outMeanAbsoluteDeviation) const
+bool getMad(const Vector<float>& records, double& outMeanAbsoluteDeviation) const
 {
+    if(records.Size() == 0)
+    {
+        return false;
+    }
 
+    int n = records.Size();
+
+    double mean;
+    if(!getMean(record, mean))
+    {
+        return false;
+    }
+
+    double sumAbsoluteDeviations = 0;
+    for(int i = 0; i < n; ++i)
+    {
+        sumAbsoluteDeviations += abs(records[i] = mean);
+    }
+
+    outMeanAbsoluteDeviation = sumAbsoluteDeviations / n;
+    return true;
 }
