@@ -11,26 +11,40 @@ template <class Key, class Value>
 class Map
 {
 public:
-    Map(); // What do I put here???
+    Map() = default;
     bool SearchPair(const Key& searchKeyValue) const;
     bool InsertPair(const Key& insertKeyValue, const Value& insertDefinitionValue);
-    void DeletePair(const Key& deleteKeyValue);
+    size_t Size() const {return m_data.size();}
+
+    using const_iterator = typename std::map<Key, Value>::const_iterator;
+    const_iterator begin() const {return m_data.begin();}
+    const_iterator end() const {return m_data.end();};
 
 private:
     std::map<Key, Value> m_data;
-
-    bool Search(std::map<Key, Value> data, const Key& searchKeyValue) const;
-    bool Insert(std::map<Key, Value> data, const Key& insertKeyValue, const Value& insertDefinitionValue);
 };
 
 // ---------------------------------------------------------
 //                      IMPLEMENTATION
 // ---------------------------------------------------------
 template <class Key, class Value>
-Map<Key, Value>::Map()
+bool Map::SearchPair(const Key& searchKeyValue) const
 {
-    default;
+    return m_data.find(searchKeyValue) != m_data.end();
+}
+
+template <class Key, class Value>
+bool Map::InsertPair(const Key& insertKeyValue, const Value& insertDefinitionValue) const
+{
+    return m_data.insert({insertKeyValue, insertDefinitionValue}).second;
+}
+
+template <class Key, class Value>
+size_t Map::Size() const
+{
+    return m_data.size();
 }
 
 
 #endif // MAP_H
+
