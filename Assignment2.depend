@@ -1,0 +1,130 @@
+# depslib dependency file v1.0
+1774856504 source:c:\users\peter\assignment2\consolewriter.cpp
+	"ConsoleWriter.h"
+	"Option1Service.h"
+	"Option2Service.h"
+	<iostream>
+	<iomanip>
+
+1774856504 c:\users\peter\assignment2\consolewriter.h
+	<string>
+
+1774856504 c:\users\peter\assignment2\option1service.h
+	"WeatherRecord.h"
+	"Vector.h"
+	"StatsCalculator.h"
+	"ConsoleWriter.h"
+
+1774856504 c:\users\peter\assignment2\weatherrecord.h
+	"Date.h"
+	"Time.h"
+
+1774856504 c:\users\peter\assignment2\date.h
+	<iostream>
+
+1774856504 c:\users\peter\assignment2\time.h
+
+1774856504 c:\users\peter\assignment2\vector.h
+	<stdexcept>
+
+1775018855 c:\users\peter\assignment2\statscalculator.h
+	"Vector.h"
+	"WeatherRecord.h"
+
+1774856504 c:\users\peter\assignment2\option2service.h
+	"WeatherRecord.h"
+	"Vector.h"
+	"StatsCalculator.h"
+	"ConsoleWriter.h"
+
+1774856504 source:c:\users\peter\assignment2\csvweatherloader.cpp
+	"CSVWeatherLoader.h"
+	"Vector.h"
+	"WeatherRecord.h"
+	"Date.h"
+	"Time.h"
+	<fstream>
+	<iostream>
+	<sstream>
+	<cctype>
+
+1774856504 c:\users\peter\assignment2\csvweatherloader.h
+	"Vector.h"
+	"WeatherRecord.h"
+	<string>
+
+1774856504 source:c:\users\peter\assignment2\date.cpp
+	"Date.h"
+
+1774856504 source:c:\users\peter\assignment2\menu.cpp
+	"Menu.h"
+	<iostream>
+
+1774856504 c:\users\peter\assignment2\menu.h
+
+1774856504 source:c:\users\peter\assignment2\metricgetters.cpp
+	"MetricGetters.h"
+
+1774856504 c:\users\peter\assignment2\metricgetters.h
+	"WeatherRecord.h"
+
+1774856504 source:c:\users\peter\assignment2\controller.cpp
+	"Controller.h"
+	<iostream>
+
+1774856504 c:\users\peter\assignment2\controller.h
+	<string>
+	"Vector.h"
+	"WeatherRecord.h"
+	"DataSourceReader.h"
+	"CSVWeatherLoader.h"
+	"StatsCalculator.h"
+	"ConsoleWriter.h"
+	"CSVReportWriter.h"
+	"Menu.h"
+	"Option1Service.h"
+	"Option2Service.h"
+	"Option3Service.h"
+	"Option4Service.h"
+
+1774856504 c:\users\peter\assignment2\datasourcereader.h
+	<string>
+	"Vector.h"
+
+1775032442 c:\users\peter\assignment2\csvreportwriter.h
+	<string>
+	"Vector.h"
+
+1774856504 c:\users\peter\assignment2\option3service.h
+	"WeatherRecord.h"
+	"Vector.h"
+	"StatsCalculator.h"
+	"ConsoleWriter.h"
+
+1774856504 c:\users\peter\assignment2\option4service.h
+	"WeatherRecord.h"
+	"Vector.h"
+	"StatsCalculator.h"
+	"CSVReportWriter.h"
+
+1775032534 source:c:\users\peter\assignment2\csvreportwriter.cpp
+	"CSVReportWriter.h"
+	"Option4Service.h"
+	<fstream>
+	<iomanip>
+
+1774856504 source:c:\users\peter\assignment2\main.cpp
+	"Controller.h"
+
+1774856504 source:c:\users\peter\assignment2\time.cpp
+	"Time.h"
+	<stdexcept>
+
+1775032546 source:c:\users\peter\assignment2\datasourcereader.cpp
+	"DataSourceReader.h"
+	<fstream>
+	"Vector.h"
+
+1774856504 source:c:\users\peter\assignment2\weatherrecord.cpp
+	"WeatherRecord.h"
+

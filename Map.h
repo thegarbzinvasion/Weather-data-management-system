@@ -16,9 +16,9 @@ public:
     bool InsertPair(const Key& insertKeyValue, const Value& insertDefinitionValue);
     size_t Size() const {return m_data.size();}
 
-    using const_iterator = typename std::map<Key, Value>::const_iterator;
-    const_iterator begin() const {return m_data.begin();}
-    const_iterator end() const {return m_data.end();};
+    //using const_iterator = typename std::map<Key, Value>::const_iterator;
+    //const_iterator begin() const {return m_data.begin();}
+    //const_iterator end() const {return m_data.end();};
 
 private:
     std::map<Key, Value> m_data;
@@ -44,7 +44,6 @@ size_t Map::Size() const
 {
     return m_data.size();
 }
-
 
 #endif // MAP_H
 

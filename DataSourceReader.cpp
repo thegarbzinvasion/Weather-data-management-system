@@ -1,6 +1,6 @@
 #include "DataSourceReader.h"
 #include <fstream>
-#include "Vector.h"s
+#include "Vector.h"
 
 // reads the csv file name provided in the txt file and passes it to each index in Vector<string> csvFileNames
 bool DataSourceReader::readCsvFileName(const std::string& txtPath, Vector<std::string>& csvFileNames) const
