@@ -1,3 +1,4 @@
+#include "StatsCalculator.h"
 
 bool StatsCalculator::getSampleStandardDeviation(const Vector<float>& records, double& outStdDev) const
 {

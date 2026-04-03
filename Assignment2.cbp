@@ -34,6 +34,14 @@
 		<Unit filename="Bst.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="BstTest.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="CSVReportWriter.cpp" />
+		<Unit filename="CSVReportWriter.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="CSVWeatherLoader.cpp" />
 		<Unit filename="CSVWeatherLoader.h">
 			<Option target="&lt;{~None~}&gt;" />
@@ -42,7 +50,10 @@
 		<Unit filename="ConsoleWriter.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="Controller.cpp" />
+		<Unit filename="Controller.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Unit filename="Controller.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
@@ -54,11 +65,14 @@
 		<Unit filename="Date.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="Map.cpp" />
 		<Unit filename="Map.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="Menu.cpp" />
+		<Unit filename="MapTest.cpp" />
+		<Unit filename="Menu.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Unit filename="Menu.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
@@ -66,23 +80,38 @@
 		<Unit filename="MetricGetters.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="Option1Service.cpp" />
+		<Unit filename="Option1Service.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Unit filename="Option1Service.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="Option2Service.cpp" />
+		<Unit filename="Option2Service.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Unit filename="Option2Service.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="Option3Service.cpp" />
+		<Unit filename="Option3Service.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Unit filename="Option3Service.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="Option4Service.cpp" />
+		<Unit filename="Option4Service.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Unit filename="Option4Service.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="StatsCalculator.cpp" />
+		<Unit filename="StatsCalculator.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Unit filename="StatsCalculator.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
@@ -97,7 +126,10 @@
 		<Unit filename="WeatherRecord.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="main.cpp" />
+		<Unit filename="main.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
