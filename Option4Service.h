@@ -52,6 +52,10 @@ public:
     /** @brief Executes Option 4 */
     void executeOption4(const Vector<WeatherRecord>& weatherrecords, int year, const std::string& outFile) const;
 private:
+    /** @brief Private Helper so that Mean and Std Dev Calculations does not repeat */
+    template<typename GetterFunc>
+    bool calculateStats(const Vector<WeatherRecord& records, int year, int month, GetterFunc getter, double& mean, double& stdDev) const;
+
     const StatsCalculator& m_stats; ///< Reference to StatsCalculator
     const CSVReportWriter& m_writer; ///< Reference to ConsoleWriter
 };

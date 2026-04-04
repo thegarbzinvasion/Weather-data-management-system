@@ -19,7 +19,9 @@ public:
     const_iterator begin() const { return m_data.begin(); }
     const_iterator end() const { return m_data.end(); }
 
-    // I will need a const iterator to iterate through the vector and insert into the Map
+    Value& operator[](const Key& key){
+        return m_data[key];
+    }
 
 private:
     std::map<Key, Value> m_data;
