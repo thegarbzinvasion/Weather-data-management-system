@@ -1,111 +1,112 @@
 #include "Controller.h"
+#include "CSVWeatherLoader.h"
+#include "WeatherDataProcessor.h"
+#include "DataSourceReader.h"
+#include "Menu.h"
+#include "MonthlyAggregate.h"
+#include "MonthlyData.h"
 #include <iostream>
 
 using std::cout;
 using std::endl;
 using std::string;
 
-// Coordinate classes DataSourceReader and CSVWeatherLoader to read and load data into outRecords
-bool Controller::loadAllData(Vector<WeatherRecord>& outRecords) const
+// Builds the required file path using "data/" to ensure the csv file is only from the "data" folder
+string Controller::buildCsvPath(const string& fileName) const
+{
+    return string("data/") + fileName;
+}
+
+// Phase 1 & 2: Load CSV files, aggregate into Map, then convert to Vector
+bool Controller::loadAllData(Vector<MonthlyData>& outMonthlyData,
+                              Vector<WeatherRecord>& outRawRecords,
+                              Bst<int>& outYears,
+                              Bst<int>& outMonths) const
 {
     DataSourceReader reader;
     CSVWeatherLoader loader;
-
-    Vector<std::string> csvFileNames;
+    Vector<string> csvFileNames;
 
     const string dataSourcePath = "data/data_source.txt";
 
-    if(!reader.readCsvFileName(dataSourcePath, csvFileNames))
+    // Read the list of CSV filenames from the text file
+    if (!reader.readCsvFileName(dataSourcePath, csvFileNames))
     {
         cout << "Error: Could not read data source file: " << dataSourcePath << endl;
         return false;
     }
 
-    for(int i = 0; i < csvFileNames.Size(); i++)
+    cout << endl;
+    cout << "===================================================================" << endl;
+    cout << endl;
+    cout << "                     LOADING WEATHER DATA                          " << endl;
+    cout << endl;
+    cout << "===================================================================" << endl;
+    cout << endl;
+
+    // Phase 1: Aggregate into Map using Month-Year keys
+    std::map<string, MonthlyAggregate> tempMap;
+    Bst<int> yearsWithData;
+    Bst<int> monthsWithData;
+
+    outRawRecords.Clear();
+
+    // Loop through each CSV file and load data
+    for (int i = 0; i < csvFileNames.Size(); i++)
     {
         string csvPath = buildCsvPath(csvFileNames[i]);
 
-        if(!loader.loadData(csvPath, outRecords))
+        // Load and aggregate directly into Map
+        if (!loader.loadData(csvPath, tempMap, yearsWithData, monthsWithData, outRawRecords))
         {
             cout << "Error: Could not load CSV file: " << csvPath << endl;
             return false;
         }
 
-    cout << "===================================================================" << endl;
-    cout << endl;
-    cout << "Records Loaded from: " << csvPath << endl;
+        cout << "   -> Loaded: " << csvPath << endl;
     }
 
-    return true;
-}
+    cout << endl;
+    cout << "-------------------------------------------------------------------" << endl;
+    cout << "   Total raw records loaded: " << outRawRecords.Size() << endl;
+    cout << "-------------------------------------------------------------------" << endl;
+    cout << endl;
 
-// Builds the required file path using "data/" to ensure the csv file is only from the "data" folder
-string Controller::buildCsvPath(const string& fileName) const
-{
-    return std::string("data/") + fileName;
+    // Phase 2: Convert Map to Vector (primary storage)
+    WeatherDataProcessor processor;
+    ProcessedData processed = processor.convertToVector(tempMap);
+
+    // Copy results to output parameters
+    outMonthlyData = processed.monthlyData;
+    outYears = processed.yearsWithData;
+    outMonths = processed.monthsWithData;
+
+    return true;
 }
 
 // Coordinate classes to calculate and display weather stats
 void Controller::runProgram()
 {
-    Vector<WeatherRecord> weatherrecords;
+    Vector<MonthlyData> monthlyData;
+    Vector<WeatherRecord> rawRecords;
+    Bst<int> yearsWithData;
+    Bst<int> monthsWithData;
+    std::map<int, SPCCResult> spccCache;
 
-    if(!loadAllData(weatherrecords))
+    // Load and aggregate all data
+    if (!loadAllData(monthlyData, rawRecords, yearsWithData, monthsWithData))
     {
-        return; // exit function immediately if loadAllDate() returns false
+        cout << "Failed to load data. Exiting program." << endl;
+        return;
     }
 
-    cout << "Number of Records Loaded: " << weatherrecords.Size() << endl;
+    cout << endl;
+    cout << "-------------------------------------------------------------------" << endl;
+    cout << "   Total monthly records loaded: " << monthlyData.Size() << endl;
+    cout << "-------------------------------------------------------------------" << endl;
+    cout << endl;
 
-    StatsCalculator stats;
-    ConsoleWriter consoleWriter;
-    CSVReportWriter csvWriter;
-
-    Option1Service option1(stats, consoleWriter);
-    Option2Service option2(stats, consoleWriter);
-    Option3Service option3(stats, consoleWriter);
-    Option4Service option4(stats, csvWriter);
-
-    Menu menu;
-
-    while(true)
-    {
-        Request request = menu.getRequest();
-
-        if(request.option == 5)
-        {
-            cout << endl;
-            cout << "===================================================================" << endl;
-            cout << endl;
-            cout << "Exiting the Program.... Thank you for Using." << endl;
-            cout << endl;
-            cout << "===================================================================" << endl;
-            break;
-        }
-
-        if(request.option == 1)
-        {
-            option1.executeOption1(weatherrecords, request.year, request.month);
-        }
-        else if(request.option == 2)
-        {
-            option2.executeOption2(weatherrecords, request.year);
-        }
-        else if(request.option == 3)
-        {
-            option3.executeOption3(weatherrecords, request.year);
-        }
-        else if(request.option == 4)
-        {
-            option4.executeOption4(weatherrecords, request.year, "WindTempSolar.csv");
-            cout << endl;
-            cout << endl;
-            cout << "Summary Successfully Written to: WindTempSolar.csv" << endl;
-            cout << endl;
-        }
-        else
-        {
-            cout << "Invalid option." << endl;
-        }
-    }
+    // Create and run the menu with loaded data
+    Menu menu(monthlyData, rawRecords, yearsWithData, monthsWithData, spccCache);
+    menu.run();
 }
