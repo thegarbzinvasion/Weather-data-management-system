@@ -4,60 +4,65 @@
 //---------------------------------------------------------------------------------
 
 #include "Vector.h"
-#include "WeatherRecord.h"
 
 //---------------------------------------------------------------------------------
 
 /**
  * @class StatsCalculator
- * @brief Performs statistical calculations on WeatherRecord data.
+ * @brief Performs statistical calculations on numeric vectors.
  *
- * Calculates mean, sample standard deviation, and sum
- * using a function pointer to extract metric values.
- * Filters data by year and month.
+ * Calculates mean, sample standard deviation, sum, Pearson correlation
+ * coefficient (sPCC), and mean absolute deviation (MAD) for Vector<double>.
  *
  * @author Kyaw Okkar
- * @version 01
- * @date 24/02/2026
+ * @version 02
+ * @date 03/04/2026
  */
 
 class StatsCalculator
 {
 public:
     /**
-     * @brief Function pointer type for extracting metric values
+     * @brief Calculates the arithmetic mean of a vector
+     * @param records Vector of numeric values
+     * @param outMean Reference to store the calculated mean
+     * @return true if vector is non-empty, false otherwise
      */
-    typedef bool (*valueGetter)(const WeatherRecord& record, double& outValue);
+    bool getMean(const Vector<double>& records, double& outMean) const;
 
     /**
-     * @brief Calculates mean value
-     * @return bool True if data exists
+     * @brief Calculates the sample standard deviation of a vector
+     * @param records Vector of numeric values
+     * @param mean Pre-calculated mean of the vector
+     * @param outStdDev Reference to store the calculated standard deviation
+     * @return true if vector has at least 2 elements, false otherwise
      */
-    bool getMean(const Vector<float> & records, double& outMean) const;
+    bool getSampleStandardDeviation(const Vector<double>& records, double mean, double& outStdDev) const;
 
     /**
-     * @brief Calculates sample standard deviation
-     * @return bool True if data exists
+     * @brief Calculates the sum of all values in a vector
+     * @param records Vector of numeric values
+     * @param outSum Reference to store the calculated sum
+     * @return true if vector is non-empty, false otherwise
      */
-    bool getSampleStandardDeviation(const Vector<float> & records, double& outStdDev) const;
+    bool getSum(const Vector<double>& records, double& outSum) const;
 
     /**
-     * @brief Calculates sum of values
-     * @return bool True if data exists
+     * @brief Calculates the Sample Pearson Correlation Coefficient (sPCC) between two vectors
+     * @param thisRecords First vector of numeric values
+     * @param otherRecords Second vector of numeric values
+     * @param outSpcc Reference to store the correlation coefficient (-1 to +1)
+     * @return true if vectors have at least 2 elements and equal size, false otherwise
      */
-    bool getSum(const Vector<float> & records, double& outSum) const;
+    bool getsPCC(const Vector<double>& thisRecords, const Vector<double>& otherRecords, double& outSpcc) const;
 
     /**
-     * @brief Calculates spCC that calculates the sample PCC between two numeric vectors
-     * @return bool True if calculation is successful
+     * @brief Calculates the Mean Absolute Deviation (MAD) of a vector
+     * @param records Vector of numeric values
+     * @param outMeanAbsoluteDeviation Reference to store the calculated MAD
+     * @return true if vector is non-empty, false otherwise
      */
-    bool getsPCC(const Vector<float>& thisRecords, const Vector<float>& otherRecords, double& outSpcc) const;
-
-    /**
-     * @brief Calculates the mean absolute deviation of the numerical vector
-     * @return bool True if calculation is successful
-     */
-    bool getMad(const Vector<float> & records, double& outMeanAbsoluteDeviation) const;
+    bool getMad(const Vector<double>& records, double& outMeanAbsoluteDeviation) const;
 };
 
 #endif // STATSCALCULATOR_H
