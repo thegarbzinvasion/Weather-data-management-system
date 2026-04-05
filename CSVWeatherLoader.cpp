@@ -1,14 +1,10 @@
 #include "CSVWeatherLoader.h"
-#include "Vector.h"
-#include "WeatherRecord.h"
-#include "Date.h"
-#include "Time.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <cctype> // To check uppercase or lowercase
+#include <cctype>
 
-// Used to store the mapped header fields (1st row) in the csv file which represents one of the values stored in here
+// Used to store the mapped header fields
 enum FieldType
 {
     FIELD_IGNORE,
@@ -18,160 +14,235 @@ enum FieldType
     FIELD_TEMP
 };
 
-// Loads weather data from the specified csvPath and does mapping of header rows to column data
-bool CSVWeatherLoader::loadData(const std::string & csvPath, Vector<WeatherRecord> & outweatherrecords) const
+bool CSVWeatherLoader::loadData(const std::string& csvPath,
+                                std::map<std::string, MonthlyAggregate>& outMap,
+                                Bst<int>& yearsWithData,
+                                Bst<int>& monthsWithData,
+                                Vector<WeatherRecord>& outRawRecords) const
 {
     std::ifstream infile(csvPath);
-    if(!infile)
+    if (!infile)
     {
+        std::cout << "Error: Could not open file: " << csvPath << std::endl;
         return false;
     }
 
     Vector<FieldType> colMap;
-
     std::string headersLine;
     std::string field;
     std::string line;
 
-    if(!std::getline(infile, headersLine))
+    // Read header line
+    if (!std::getline(infile, headersLine))
     {
         std::cout << "FAILED: could not read header line." << std::endl;
         return false;
     }
 
+    // Parse header to create column mapping
     std::stringstream headerSS(headersLine);
-
     while (std::getline(headerSS, field, ','))
     {
         std::string normalized = "";
-
-        for(int i = 0; i < field.size(); i++)
+        for (int i = 0; i < field.size(); i++)
         {
-            if(field[i] != ' ')
+            if (field[i] != ' ')
             {
                 char upperChar = std::toupper(field[i]);
                 normalized += upperChar;
             }
         }
 
-        FieldType mappedField;
+        FieldType mappedField = FIELD_IGNORE;
 
-        if(normalized == "WAST")
+        // Match header names to field types
+        if (normalized == "WAST")
         {
             mappedField = FIELD_WAST;
-
-        }else if(normalized == "S")
+        }
+        else if (normalized == "S")
         {
             mappedField = FIELD_WIND;
-
-        }else if(normalized == "T")
+        }
+        else if (normalized == "T")
         {
             mappedField = FIELD_TEMP;
-
-        }else if(normalized == "SR")
+        }
+        else if (normalized == "SR")
         {
             mappedField = FIELD_SOLAR;
-        }
-        else
-        {
-            mappedField = FIELD_IGNORE;
         }
 
         colMap.Append(mappedField);
     }
 
-    while(std::getline(infile, line))
-    {
+    // Track unique timestamps to detect duplicates within this file
+    Bst<std::string> uniqueTimestamps;
 
-        WeatherRecord weatherrecord;
+    // Process each data row
+    while (std::getline(infile, line))
+    {
+        // Temporary variables for this row
+        int day = 0, month = 0, year = 0;
+        int hour = 0, minute = 0;
+        float windSpeed = 0.0f;
+        float solarRadiation = 0.0f;
+        float ambientAirTemp = 0.0f;
+
+        bool hasDate = false;
+        bool hasWind = false;
+        bool hasSolar = false;
+        bool hasTemp = false;
 
         std::stringstream rowSS(line);
         int columnIndex = 0;
 
-        while(std::getline(rowSS, field, ','))
+        // Parse each column based on its mapped type
+        while (std::getline(rowSS, field, ','))
         {
-            if(columnIndex >= colMap.Size())
+            if (columnIndex >= colMap.Size())
             {
                 break;
             }
 
             FieldType type = colMap[columnIndex];
 
-            if(type == FIELD_WAST)
+            if (type == FIELD_WAST)
             {
-                if(!field.empty() && field.back() == '\r')
+                // Parse date and time from WAST column
+                if (!field.empty() && field.back() == '\r')
                 {
                     field.pop_back();
                 }
 
                 std::stringstream wastSS(field);
-
                 std::string dataPart;
                 std::string timePart;
 
                 wastSS >> dataPart >> timePart;
 
                 std::stringstream dateSS(dataPart);
-
-                int day, month, year;
                 char slash;
-
                 dateSS >> day >> slash >> month >> slash >> year;
 
                 std::stringstream timeSS(timePart);
-
-                int hour, minute;
                 char colon;
-
                 timeSS >> hour >> colon >> minute;
 
-                Date d(day, month, year);
-                Time t(hour, minute);
-
-                weatherrecord.setDate(d);
-                weatherrecord.setTime(t);
-
-            }else if(type == FIELD_WIND)
+                hasDate = true;
+            }
+            else if (type == FIELD_WIND)
             {
-                if(!field.empty() && field.back() == '\r')
+                // Parse wind speed
+                if (!field.empty() && field.back() == '\r')
                 {
                     field.pop_back();
                 }
-                if(field != "" && field != "N/A")
+                if (field != "" && field != "N/A")
                 {
-                    float value = std::stof(field);
-                    weatherrecord.setWindSpeed(value);
+                    windSpeed = std::stof(field);
+                    hasWind = true;
                 }
-
-            }else if(type == FIELD_SOLAR)
+            }
+            else if (type == FIELD_SOLAR)
             {
-
-                if(!field.empty() && field.back() == '\r')
+                // Parse solar radiation
+                if (!field.empty() && field.back() == '\r')
                 {
                     field.pop_back();
                 }
-                if(field != "" && field != "N/A")
+                if (field != "" && field != "N/A")
                 {
-                    float value = std::stof(field);
-                    weatherrecord.setSolarRadiation(value);
+                    solarRadiation = std::stof(field);
+                    hasSolar = true;
                 }
-
-            }else if(type == FIELD_TEMP)
+            }
+            else if (type == FIELD_TEMP)
             {
-
-                if(!field.empty() && field.back() == '\r')
+                // Parse temperature
+                if (!field.empty() && field.back() == '\r')
                 {
                     field.pop_back();
                 }
-                if(field != "" && field != "N/A")
+                if (field != "" && field != "N/A")
                 {
-                    float value = std::stof(field);
-                    weatherrecord.setAmbientAirTemp(value);
+                    ambientAirTemp = std::stof(field);
+                    hasTemp = true;
                 }
             }
             columnIndex++;
         }
-        outweatherrecords.Append(weatherrecord);
+
+        // Only aggregate if we have at least a date
+        if (hasDate)
+        {
+            // Create unique timestamp key for duplicate detection
+            std::string timestampKey = std::to_string(day) + "/" +
+                                       std::to_string(month) + "/" +
+                                       std::to_string(year) + " " +
+                                       std::to_string(hour) + ":" +
+                                       std::to_string(minute);
+
+            // Check for duplicate record within this file
+            if (uniqueTimestamps.SearchTree(timestampKey))
+            {
+                std::cout << "Warning: Duplicate timestamp found in " << csvPath
+                          << ": " << timestampKey << " - skipping" << std::endl;
+                continue;
+            }
+
+            // Add to BST of seen timestamps
+            uniqueTimestamps.InsertTree(timestampKey);
+
+            // Create a WeatherRecord for raw storage (MAD calculations)
+            Date date(day, month, year);
+            Time time(hour, minute);
+
+            WeatherRecord record;
+            record.setDate(date);
+            record.setTime(time);
+
+            if (hasWind)
+            {
+                record.setWindSpeed(windSpeed);
+            }
+            if (hasTemp)
+            {
+                record.setAmbientAirTemp(ambientAirTemp);
+            }
+            if (hasSolar)
+            {
+                record.setSolarRadiation(solarRadiation);
+            }
+
+            // Store raw record for MAD calculations
+            outRawRecords.Append(record);
+
+            // Create key "Month-Year"
+            std::string monthYearKey = std::to_string(month) + "-" + std::to_string(year);
+
+            // Get or create the aggregate for this month-year
+            MonthlyAggregate& agg = outMap[monthYearKey];
+
+            // Add the reading to the aggregate
+            if (hasWind)
+            {
+                agg.addWindSpeed(windSpeed);
+            }
+            if (hasTemp)
+            {
+                agg.addTemperature(ambientAirTemp);
+            }
+            if (hasSolar)
+            {
+                agg.addSolarRadiation(solarRadiation);
+            }
+            agg.incrementCount();
+
+            // Track years and months in BST (set operations)
+            yearsWithData.InsertTree(year);
+            monthsWithData.InsertTree(month);
+        }
     }
 
     return true;

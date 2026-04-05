@@ -1,95 +1,72 @@
 #include "ConsoleWriter.h"
-#include "Option1Service.h"
-#include "Option2Service.h"
 #include <iostream>
 #include <iomanip>
 
 using std::cout;
 using std::endl;
+using std::fixed;
+using std::setprecision;
 
-// Converts month number (1-12) to its corresponding month name
-std::string ConsoleWriter::MonthName(int month) const
+// Prints a visual separator line for better output formatting
+void ConsoleWriter::printSeparator() const
 {
-    // Static array so it is created only once
+    cout << endl;
+    cout << "===================================================================" << endl;
+    cout << endl;
+}
+
+// Converts month number (1-12) to full month name
+std::string ConsoleWriter::monthName(int month) const
+{
     static const char* names[12] = {"January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"};
-
-    // Return empty string if month is invalid
-    if(month < 1 || month > 12)
-    {
-        return "";
-    }
-
+                                    "July", "August", "September", "October", "November", "December"};
+    if (month < 1 || month > 12) return "";
     return names[month - 1];
 }
 
-// Prints wind statistics for a specific month (Option 1)
-void ConsoleWriter::printOption1(int year, int month, bool hasData, const Option1Result& result) const
+// Prints wind statistics for Option 1 - shows average speed and standard deviation in km/h
+void ConsoleWriter::printOption1(int year, int month, bool hasData, double meanKmh, double stdDevKmh) const
 {
-    // If no data exists, print message and exit
-    if(!hasData)
+    if (!hasData)
     {
-        cout << MonthName(month) << " " << year << ": No Data" << endl;
+        cout << monthName(month) << " " << year << ": No Data" << endl;
         return;
     }
 
-    cout << endl;
-    cout << "===================================================================" << endl;
-    cout << endl;
-    cout << MonthName(month) << " " << year << ":" << endl;
-
-    // Format output to 1 decimal place
-    cout << std::fixed << std::setprecision(1);
-
-    cout << "Average speed: " << result.meanKmh << " km/h" << endl;
-    cout << "Sample stdev: " << result.stdDevKmh << endl;
+    printSeparator();
+    cout << monthName(month) << " " << year << ":" << endl;
+    cout << fixed << setprecision(1);
+    cout << "Average speed: " << meanKmh << " km/h" << endl;
+    cout << "Sample stdev: " << stdDevKmh << endl;
 }
 
-// Prints header for Option 2 (temperature yearly view)
+// Prints the header (year) for Option 2 temperature view
 void ConsoleWriter::printOption2Header(int year) const
 {
-    cout << endl;
-    cout << "===================================================================" << endl;
-    cout << endl;
+    printSeparator();
     cout << year << endl;
 }
 
-// Prints temperature statistics for a specific month (Option 2)
-void ConsoleWriter::printOption2Month(int month, bool hasData, const Option2Result& result) const
+// Prints temperature statistics for a single month in Option 2
+void ConsoleWriter::printOption2Month(int month, bool hasData, double meanC, double stdDevC) const
 {
-    // If no data exists, print message
-    if(!hasData)
+    if (!hasData)
     {
-        cout << MonthName(month) << ": No Data" << endl;
+        cout << monthName(month) << ": No Data" << endl;
         return;
     }
 
-    // Format output to 1 decimal place
-    cout << std::fixed << std::setprecision(1);
-    cout << MonthName(month) << ": average: " << result.meanC
-         << " degrees C, stdev: " << result.stdDevC << endl;
+    cout << fixed << setprecision(1);
+    cout << monthName(month) << ": average: " << meanC << " degrees C, stdev: " << stdDevC << endl;
 }
 
-// Prints header for Option 3 (solar yearly view)
-void ConsoleWriter::printOption3Header(int year) const
+// Prints sPCC correlation results for Option 3 - shows S_T, S_R, T_R values
+void ConsoleWriter::printOption3Result(int month, double s_t, double s_r, double t_r) const
 {
-    cout << endl;
-    cout << "===================================================================" << endl;
-    cout << endl;
-    cout << year << endl;
-}
-
-// Prints total solar radiation for a specific month (Option 3)
-void ConsoleWriter::printOption3Month(int month, bool hasData, double totalKWhPerM2) const
-{
-    // If no solar data exists, print message
-    if(!hasData)
-    {
-        cout << MonthName(month) << ": No Data" << endl;
-        return;
-    }
-
-    // Format output to 1 decimal place
-    cout << std::fixed << std::setprecision(1);
-    cout << MonthName(month) << ": " << totalKWhPerM2 << " kWh/m2" << endl;
+    printSeparator();
+    cout << "Sample Pearson Correlation Coefficient for " << monthName(month) << endl;
+    cout << fixed << setprecision(2);
+    cout << "S_T: " << s_t << endl;
+    cout << "S_R: " << s_r << endl;
+    cout << "T_R: " << t_r << endl;
 }

@@ -9,55 +9,65 @@
 
 /**
  * @class ConsoleWriter
- * @brief Handles formatted console output for menu options.
+ * @brief Handles formatted console output for weather statistics.
  *
- * Prints results for Options 1, 2, and 3
- * in the required format with one decimal place.
- * Contains no calculation logic.
+ * Provides methods to print wind stats, temperature stats,
+ * and sPCC results to the console with proper formatting.
  *
  * @author Kyaw Okkar
- * @version 01
- * @date 05/03/2026
+ * @version 02
+ * @date 01/04/2026
  */
-
-/**
-* @brief Forward Declaration of Struct by telling Compiler It Exists
-*/
-struct Option1Result;
-struct Option2Result;
 
 class ConsoleWriter
 {
 public:
     /**
-     * @brief Prints results for Option 1
+     * @brief Prints wind statistics for a specific month/year (Option 1)
+     * @param year Year of the data
+     * @param month Month number (1-12)
+     * @param hasData True if data exists for this month/year
+     * @param meanKmh Average wind speed in km/h
+     * @param stdDevKmh Standard deviation of wind speed in km/h
      */
-    void printOption1(int year, int month, bool hasData, const Option1Result& result) const;
+    void printOption1(int year, int month, bool hasData, double meanKmh, double stdDevKmh) const;
 
     /**
-     * @brief Prints header for Option 2
+     * @brief Prints header for yearly temperature view (Option 2)
+     * @param year Year being displayed
      */
     void printOption2Header(int year) const;
 
     /**
-     * @brief Prints monthly result for Option 2
+     * @brief Prints temperature statistics for a specific month (Option 2)
+     * @param month Month number (1-12)
+     * @param hasData True if data exists for this month
+     * @param meanC Average temperature in Celsius
+     * @param stdDevC Standard deviation of temperature in Celsius
      */
-    void printOption2Month(int month, bool hasData, const Option2Result& result) const;
+    void printOption2Month(int month, bool hasData, double meanC, double stdDevC) const;
 
     /**
-     * @brief Prints header for Option 3
+     * @brief Prints sPCC results for a specific month (Option 3)
+     * @param month Month number (1-12)
+     * @param s_t Correlation between wind speed and temperature
+     * @param s_r Correlation between wind speed and solar radiation
+     * @param t_r Correlation between temperature and solar radiation
      */
-    void printOption3Header(int year) const;
+    void printOption3Result(int month, double s_t, double s_r, double t_r) const;
 
     /**
-     * @brief Prints monthly result for Option 3
+     * @brief Converts month number to month name
+     * @param month Month number (1-12)
+     * @return Month name string
      */
-    void printOption3Month(int month, bool hasData, double totalKWhPerM2) const;
+    std::string monthName(int month) const;
 
 private:
     /**
-     * @brief Converts month number to month name
-     * @return std::string */
-    std::string MonthName(int month) const; // private helper to print each month stats of a year
+     * @brief Prints separator line for visual formatting
+     */
+    void printSeparator() const;
 };
+
 #endif // CONSOLEWRITER_H

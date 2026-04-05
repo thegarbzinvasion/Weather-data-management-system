@@ -1,70 +1,102 @@
 #include "CSVReportWriter.h"
-#include "Option4Service.h"
+#include "StatsCalculator.h"
+#include "WeatherRecord.h"
+#include "MonthlyData.h"
 #include <fstream>
 #include <iomanip>
+#include <cmath>
 
-// Prints the month name value of a matching integer value representing the month
-std::string CSVReportWriter::MonthName(int month) const
+// Implementation of monthName - converts month number to name
+std::string CSVReportWriter::monthName(int month) const
 {
-    // a static local constant, so its not accessible outside the function
-    // strictly for this function ONLY.
     static const char* names[12] = {"January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"};
-
-    if(month < 1 || month > 12)
-    {
-        return "";
-    }
-
+                                    "July", "August", "September", "October", "November", "December"};
+    if (month < 1 || month > 12) return "";
     return names[month - 1];
 }
-// Prints the required format into WindTempSolar.csv
-bool CSVReportWriter::writeOption4(const std::string& filename, int year, const Vector<Option4Result>& summaries) const
+
+// Implementation of writeOption4 - writes monthly statistics to CSV file
+bool CSVReportWriter::writeOption4(const std::string& filename,
+                                    int year,
+                                    const Vector<MonthlyData>& monthlyData,
+                                    const Vector<WeatherRecord>& rawRecords) const
 {
-    std::ofstream out(filename.c_str());
-    if(!out)
+    std::ofstream outFile(filename);
+    if (!outFile) return false;
+
+    outFile << year << std::endl;
+
+    // Filter data for the specified year
+    Vector<MonthlyData> yearData;
+    for (int i = 0; i < monthlyData.Size(); i++)
     {
-        return false;
+        if (monthlyData[i].year == year)
+        {
+            yearData.Append(monthlyData[i]);
+        }
     }
 
-    // Write year on first line
-    out << year << "\n";
-
-    // If entire year has no data
-    if(summaries.IsEmpty())
+    // If no data for this year, write "No Data" and exit
+    if (yearData.IsEmpty())
     {
-        out << "No Data\n";
+        outFile << "No Data" << std::endl;
+        outFile.close();
         return true;
     }
 
-    out << std::fixed << std::setprecision(1); // Makes it so that it shows exactly 1 decimal place
+    StatsCalculator stats;
+    outFile << std::fixed << std::setprecision(1);
 
-    // Each summary is a month row (Option4Service already skipped empty months)
-    for(int i = 0; i < summaries.Size(); i++)
+    // Loop through each month and write its statistics
+    for (int i = 0; i < yearData.Size(); i++)
     {
-        const Option4Result& result = summaries[i];
+        const MonthlyData& data = yearData[i];
 
-        out << MonthName(result.month) << ","; // Here a month is printed out for each result's month
+        // Collect raw readings for MAD calculation
+        Vector<double> windReadings;
+        Vector<double> tempReadings;
 
-        if(result.hasWind)
+        for (int j = 0; j < rawRecords.Size(); j++)
         {
-            out << result.meanWindKmh << "(" << result.stdWindKmh << ")";
+            const WeatherRecord& record = rawRecords[j];
+            if (record.getDate().getYear() == data.year &&
+                record.getDate().getMonth() == data.month)
+            {
+                if (record.hasWindSpeed())
+                {
+                    windReadings.Append(record.getWindSpeed());
+                }
+                if (record.hasAmbientAirTemp())
+                {
+                    tempReadings.Append(record.getAmbientAirTemp());
+                }
+            }
         }
-        out << ",";
 
-        if(result.hasTemp)
+        // Calculate MAD for wind
+        double windMAD = 0.0;
+        if (windReadings.Size() > 0)
         {
-            out << result.meanTempC << "(" << result.stdTempC << ")";
+            stats.getMad(windReadings, windMAD);
         }
-        out << ",";
 
-        if(result.hasSolar)
+        // Calculate MAD for temperature
+        double tempMAD = 0.0;
+        if (tempReadings.Size() > 0)
         {
-            out << result.totalSolarKWhPerM2;
+            stats.getMad(tempReadings, tempMAD);
         }
 
-        out << "\n";
+        // Write output in CSV format: Month, Wind(stdev,MAD), Temp(stdev,MAD), Solar
+        outFile << monthName(data.month) << ",";
+        outFile << data.avgWindSpeed * 3.6 << "(" << data.windStdDev * 3.6 << "," << windMAD << ")";
+        outFile << ",";
+        outFile << data.avgTemperature << "(" << data.tempStdDev << "," << tempMAD << ")";
+        outFile << ",";
+        outFile << data.totalSolarRadiation / 6000.0;
+        outFile << "\n";
     }
 
+    outFile.close();
     return true;
 }
